@@ -1,0 +1,16 @@
+
+ <div class="input-item">
+   <input type="radio" name="radio-choice-v-2" id="<%= serverurl %>" onclick="fnUpdateStatusServer('<%= serverurl %>');" name="radio-choice-server" <%= done ? 'checked="checked"' : '' %> />
+   <label for="<%= serverurl %>" >
+
+   <div class="tooltitle" >
+     <h2><%= servername %></h2>
+     <p><%= serverurl %>&nbsp;</p>
+   </div>
+   </label>
+
+   <div data-role="controlgroup" align="right" data-type="horizontal" class="toolIcon">
+    	<a href="#" data-inline="true" data-transition="slideup" data-iconpos="notext" data-rel="popup" data-position-to="window" data-icon="editIco" data-theme="gmBlack" data-role="button" class="icon48 ui-icon-gm white  featuredBg editServerItem"></a> 
+    	<a data-iconpos="notext"  data-icon="deleteIco" data-theme="gmBlack" data-role="button" class="toolsIcon icon48 ui-icon-gm white   thirdBg deleteServerItem"></a> 
+    </div>
+</div> 

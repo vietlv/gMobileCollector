@@ -1,0 +1,589 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+  	<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+
+    <title>gMobile Collector</title>
+        
+    <!-- css -->
+    <link rel="stylesheet" href="js/libs/jquerymobile/jquery.mobile.flatui.css" type="text/css" charset="utf-8" />
+    <link rel="stylesheet" href="css/default.css" type="text/css" charset="utf-8" />
+
+	<!-- Libs javascript -->
+    <script type="text/javascript" charset="utf-8" src="cordova.js"></script>    
+	
+	<!-- jquery -->
+    <script type="text/javascript" charset="utf-8" src="js/libs/vendor/json2.js"></script>
+	<script type="text/javascript" charset="utf-8" src="js/libs/jquery/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" charset="utf-8" src="js/libs/jquerymobile/jquery.mobile.1.3.2.min.js"></script>
+    <script type="text/javascript" charset="utf-8" src="js/libs/jqueryplugins/idangerous/idangerous.swiper-2.3.min.js"></script>
+    <script type="text/javascript" charset="utf-8" src="js/libs/jqueryplugins/date.js"></script> 
+
+	<!-- backbone -->
+	<script src="js/libs/vendor/underscore.js"></script>
+	<script src="js/libs/backbone/backbone.js"></script>
+	<script src="js/libs/backbone/backbone.localStorage.js"></script>
+	  
+	  
+ 	<!-- openlayer -->
+ 	<script type="text/javascript" charset="utf-8" src="js/libs/openlayers/OpenLayers.js"></script>
+ 	<script type="text/javascript" charset="utf-8" src="js/libs/openlayers/DragFeature.js"></script>
+ 	<link rel="stylesheet" href="js/libs/openlayers/theme/default/style.css" type="text/css" charset="utf-8" />
+ 	
+ 	<!-- app -->
+  	<script type="text/javascript" charset="utf-8" src="js/app/global.js"></script>
+  	<script type="text/javascript" charset="utf-8" src="js/app/utils.js"></script> 
+    <script type="text/javascript" charset="utf-8" src="js/app/model/catalog.js"></script>
+    <script type="text/javascript" charset="utf-8" src="js/app/model/item.js"></script>
+    <script type="text/javascript" charset="utf-8" src="js/app/model/server.js"></script>
+    <script type="text/javascript" charset="utf-8" src="js/app/model/session.js"></script>
+    <script type="text/javascript" charset="utf-8" src="js/app/model/mapstorage.js"></script>
+    <script type="text/javascript" charset="utf-8" src="js/app/view/view_catalog.js"></script>
+    <script type="text/javascript" charset="utf-8" src="js/app/view/view_item.js"></script>
+    <script type="text/javascript" charset="utf-8" src="js/app/view/view_server.js"></script>
+	<script type="text/javascript" charset="utf-8" src="js/app/view/settingPage.js"></script>
+    <script type="text/javascript" charset="utf-8" src="js/app/view/loginPage.js"></script>
+    <script type="text/javascript" charset="utf-8" src="js/app/view/explorerPage.js"></script>
+    <script type="text/javascript" charset="utf-8" src="js/app/view/ScreenImage.js"></script>
+    
+    <script type="text/javascript" charset="utf-8" src="js/app/map.js"></script>
+  	<script type="text/javascript" charset="utf-8" src="js/app/main.js"></script>
+    
+    
+
+<script type="text/template" id="server_item_template"> 
+ <div class="input-item">
+   <input type="radio" name="radio-choice-v-2" id="<%= serverurl %>" onclick="fnUpdateStatusServer('<%= serverurl %>');" name="radio-choice-server" <%= done ? 'checked="checked"' : '' %> />
+   <label for="<%= serverurl %>" >
+
+   <div class="tooltitle" >
+     <h2><%= servername %></h2>
+     <p><%= serverurl %>&nbsp;</p>
+   </div>
+   </label>
+
+   <div data-role="controlgroup" align="right" data-type="horizontal" class="toolIcon">
+    	<a href="#" data-inline="true" data-transition="slideup" data-iconpos="notext" data-rel="popup" data-position-to="window" data-icon="editIco" data-theme="gmBlack" data-role="button" class="icon48 ui-icon-gm white  featuredBg editServerItem"></a> 
+    	<a data-iconpos="notext"  data-icon="deleteIco" data-theme="gmBlack" data-role="button" class="toolsIcon icon48 ui-icon-gm white   thirdBg deleteServerItem"></a> 
+    </div>
+</div> 
+</script>
+
+<script type="text/template" id="catalog_item_template">
+	<li data-corners="false"  data-shadow="false" data-iconshadow="true" data-wrapperels="div" data-icon="arrow-r" data-iconpos="right" data-theme="c" class="ui-btn ui-btn-icon-right ui-li-has-arrow ui-li ui-first-child ui-btn-up-c item_catalog">
+		<div class="ui-btn-inner ui-li">
+				<div class="ui-btn-text"><span class="icon48 ui-icon-gm featured noBg icon2Left ui-btn ui-btn-up-gm ui-shadow ui-btn-corner-all ui-btn-icon-notext" data-role="button" data-theme="gm" data-icon="groupIco" data-iconpos="notext" data-corners="true" data-shadow="true" data-iconshadow="true" data-wrapperels="span" title="">
+				<span class="ui-btn-inner"><span class="ui-btn-text"></span><span class="ui-icon ui-icon-groupIco ui-icon-shadow">&nbsp;</span></span></span><a href="#" class="ui-link-inherit"><%= Title%></a>
+				</div>
+				<span class="ui-icon ui-icon-arrow-r ui-icon-shadow">&nbsp;</span>
+		</div>
+	</li>
+</script>
+
+<script type="text/template" id="tainguyen_item_template">
+	<li id="<%= ItemID %>" data-corners="false" data-shadow="false" data-iconshadow="true" data-wrapperels="div" data-icon="arrow-r" data-iconpos="right" data-theme="c" class="ui-btn ui-btn-icon-right ui-li-has-arrow ui-li ui-last-child ui-btn-up-c item_resource">
+		<div class="ui-btn-inner ui-li"><div class="ui-btn-text"><a href="#" class="ui-link-inherit"><%= Title%></a></div>
+		<span class="ui-icon ui-icon-arrow-r ui-icon-shadow">&nbsp;</span></div>
+	</li>
+</script>
+
+<script type="text/javascript">
+
+        function onBodyLoad() {
+        	startApp();
+            //document.addEventListener("deviceready", startApp, false);
+        }
+
+    </script>
+
+<style type="text/css">
+.split-custom-wrapper {
+    /* position wrapper on the right of the listitem */
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+}
+
+.split-custom-button {
+    position: relative;
+    float: right;   /* allow multiple links stacked on the right */
+    height: 100%;
+    margin:0;
+    min-width:3em;
+    /* remove boxshadow and border */
+    border:none;
+    moz-border-radius: 0;
+    webkit-border-radius: 0;
+    border-radius: 0;
+    moz-box-shadow: none;
+    webkit-box-shadow: none;
+    box-shadow: none;
+}
+
+.split-custom-button span.ui-btn-inner {
+    /* position icons in center of listitem*/
+    position: relative;
+    margin-top:20%;
+    margin-left:50%;
+    /* compensation for icon dimensions */
+    top:11px; 
+    left:-12px;
+    height:40%; /* stay within boundaries of list item */
+}
+
+.ui-body-gm .formInside.ui-listview li .formValue {
+    padding: 6px 6px 0;
+}
+.ui-body-gm .formInside.ui-listview li {
+    border: 0 none;
+    border-radius: 0 !important;
+}
+.ui-body-gm .formInside .ui-body-c.ui-input-text {
+    background: none repeat scroll 0 0 #F8F8F8;
+}
+.ui-body-gm .formInside input[type="text"] {
+    -moz-box-sizing: border-box;
+    padding: 0.4em 6px;
+}
+label.forFormInside {
+    display: inline-block;
+    padding: 18px 0 12px 6px;
+    text-transform: uppercase;
+}
+</style>
+</head>
+
+<body id="bd" onload="onBodyLoad();">
+
+    <!-- main page /Login page -->
+    <div id="mainPage" data-role="page"  data-theme="gm">
+        <!-- main content area -->
+        <div id="mainContent" data-role="content" style="display: block">
+      
+            <div id="login" data-role="content" class="jqm-content" style="display: block">
+				<img class="logo_white" src="images/svg/logo_white.svg" type="image/svg+xml"></img>
+                <form id="loginForm">
+                    <!--<h4 style="margin-top: 0px;">Vui lòng đăng nhập với tài khoản <span style="white-space: nowrap">gServer của bạn</span></h4>-->
+                    <label for="username" class="ui-hidden-accessible">Username</label>
+                    <input id="username" name="username" value="admin@admin.com" placeholder="Username"/>
+                    <label for="password" class="ui-hidden-accessible">Username</label>
+                    <input id="password" value="ekgis2013" name="password" type="password" placeholder="Password"/>
+                    <!-- <a data-role="button" href="#explorerPage"    id="logInButton" data-mini="false" onclick="userLogIn();" >Đăng nhập</a> -->
+                    <!-- <a data-role="button"  id="logInButton" data-mini="false" onclick="USER.userLogIn();" >Đăng nhập</a> -->
+                    <a data-role="button"  id="logInButton" data-mini="false" >Đăng nhập</a>
+                </form>
+              	
+             	<!-- 
+             	<center>
+                    <p style="margin-top: 2em">
+                       Vui lòng chọn cấu hình Server trong danh sách mặc định hoặc thêm mới Server trước khi đăng nhập
+                        <a href="#settingsPage" data-rel="page">Tại đây!</a>
+                    </p>
+                    <p>Hoặc đăng ký tài khoản mới <a href="#signupPage" >Tại đây</a></p>
+                </center> 
+                -->
+                
+            </div>
+            <!-- end login form -->
+
+            <!-- login success  -->
+            <div id="loginMessageSuccess" data-role="content" style="display: none">
+                <center>
+                    <strong>
+                      Đăng xuất khỏi hệ thống 
+                        <a href="#" onclick="userLogOut();" data-rel="page">Tại đây</a>
+                        Hoặc vào <a href="#explorerPage">Tài nguyên</a> để xem danh sách bản đồ
+                    </strong>
+                </center>
+            </div>
+
+            <!-- the custom form -->
+            <div id="customForm" style="display: none"></div>
+        </div>
+        <!-- end main content area -->
+
+		
+		 <!-- <nav class="bottomButton">
+			<div class="col-50"><a href="#" class="buttonLink featuredBg" data-role="button" data-icon="gear" data-iconpos="top">Cấu hình Server</a> </div>
+			<div class="col-50"><a href="#" class="buttonLink secondBg" data-role="button" data-icon="plus" data-iconpos="top">Đăng ký</a></div>
+		  </nav> -->
+		<div data-role="footer" data-position="fixed" data-theme="a">
+		    <div data-role="navbar"data-theme="a" >
+		      <ul>
+		        <li><a href="#settingsPage" data-icon="gear" >Cấu hình Server</a></li>
+		        <li><a href="#helpPage" data-icon="info" >Trợ giúp</a></li>
+		      </ul>
+		    </div>
+		 </div>
+  
+		  
+        <!-- footer -->
+		<!--
+        <div data-role="footer" data-position="fixed" data-tap-toggle="false">
+            <div data-role="navbar">
+                <ul>
+               
+                     <li><a href="#helpPage" data-theme="c" data-icon="info">Trợ giúp</a></li>
+                       
+                </ul>
+            </div>
+        </div>-->
+        <!-- end footer -->
+
+    </div>
+    <!-- end main page -->
+
+    <!-- help page -->
+    <div id="helpPage" data-role="page"  data-theme="gm"   data-add-back-btn="true">
+        <!-- header -->
+        <div data-role="header" data-position="fixed" data-theme="gmBlack" data-tap-toggle="false">
+            <div class="logoHeader">
+	    		<div></div>
+	    	</div>
+        </div>
+        <!-- end header -->
+        <div data-role="content">
+            <h4>Bắt đầu với gMobile</h4>
+          	<p>Nội dung của trang trợ giúp</p>
+	
+            <h4>Liên hệ</h4>
+				<p>Công ty cổ phần công nghệ thông tin địa lý eK</p>
+			    <p>Địa chỉ: Tầng 6 - Tòa nhà TechnoSoft Building - Khu Công nghiệp vừa & nhỏ - phường Dịch Vọng Hậu - quận Cầu Giấy - Hà Nội</p>
+			    <p>Điện thoại: +84-4-6251-0750 | Fax: +84-4-6251-0750 | Email: info@ekgis.com.vn</p>
+			    <p>Website: www.cloudgis.vn | www.ekgis.com.vn</p>
+            
+        </div>
+    </div>
+    <!-- end help page -->
+
+	<!-- explorer page -->
+	<div id="explorerPage" data-role="page"  data-theme="gm">
+	
+	 <!--  <div data-role="header" data-position="fixed" data-theme="a"> 
+		 <a href="#" id="btnHomeResource" data-role="button" class="ui-btn-left" data-icon="home" data-theme="a" data-iconpos="notext"title="Tất cả tài nguyên">Tài nguyên</a>
+	    	<h1>Tài nguyên</h1>
+	     <a href="#helpPage" data-rel="page" data-icon="info" data-iconpos="notext" data-theme="a" class="ui-btn-right">Trợ giúp</a>
+      </div> -->
+	
+		<div data-role="header" data-position="fixed" data-theme="a">
+		   <div data-role="navbar" data-theme="a" >
+		      <ul>
+		      	<li>
+		      		<a href="#" id="btnHomeResource" data-role="button"  data-icon="home" data-theme="a" data-iconpos="notext"title="Tất cả tài nguyên">Tất cả</a>
+	    		</li>
+	    		<li>
+		      		<a href="#" id="btnReloadResource" data-role="button"  data-icon="refresh" data-theme="a" data-iconpos="notext"title="Tải lại tài nguyên">Tải online</a>
+	    		</li>
+	    		<li>
+	    		 	<a href="#helpPage" data-rel="page" data-icon="info" data-iconpos="notext" data-theme="a">Trợ giúp</a>
+	    		 </li>
+		      </ul>
+		    </div>
+		  </div>
+  
+	        
+        <!-- Content -->
+        <div data-role="content"  data-theme="gm">
+          	<!-- <h3 class="titlePage">Danh sách bản đồ</h3> -->
+          	<label class="forFormInside">Danh sách bản đồ</label>       	
+        	<ul data-role="listview" id="listexplorerContent"  data-inset="true"></ul>
+        	<ul data-role="listview" id="listexplorerItems"  data-inset="false" data-split-theme="d"></ul>
+		</div>
+		<!-- end content explorer -->
+  
+        <!-- footer -->
+        <div data-role="footer" data-position="fixed" data-tap-toggle="false">
+            <div data-role="navbar">
+                <ul>
+                    <!-- <li><a id="btnViewHistoryMap" onclick="fnHistoryMap();"  href="#" data-icon="gear">Xem lịch sử</a></li> -->
+                    
+                     <li><a href="#mainPage"  data-icon="bars">Đăng xuất</a></li>
+					<!-- <li><a href="#settingsPage" data-theme="a" data-icon="bars">Cấu hình</a></li> -->
+                </ul>
+            </div>
+        </div>
+        <!-- end footer -->
+	</div>
+	<!-- end explorer page -->
+	
+	<!-- list explorer page -->
+	<div id="listexplorerPage" data-role="page" data-content-theme="a" data-add-back-btn="true">
+	 	<!-- header -->
+        <div data-role="header" data-position="fixed" data-theme="g" data-tap-toggle="false">
+            <h1>Danh sách bản đồ</h1>
+            <a href="#helpPage" data-rel="page" data-icon="info" data-iconpos="notext" data-theme="g" class="ui-btn-right">Help</a>
+        </div>
+        <!-- end header -->
+	</div>
+	<!-- end list explorer page -->
+	
+    <!-- settings page -->
+    <div id="settingsPage" data-role="page" data-theme="gm"  >
+        <!-- header -->
+        <div data-role="header" data-theme="a" data-position="fixed" data-tap-toggle="false">
+        	<a href="#mainPage"  data-icon="back" data-role="button" data-inline="true">Trở lại</a>
+         	    <h1>Cấu hình</h1>
+         	<!-- <div class="logoHeader">
+	    		<div></div>
+	    	</div> -->
+            <a href="#helpPage" data-rel="page" data-theme="a" data-icon="info" data-iconpos="notext"  class="ui-btn-right">Help</a>
+        </div>
+        <!-- end header -->
+   		<div data-role="content" data-theme="gm">
+		          
+			<!-- <h3 class="titlePage">Cấu hình server</h3> -->
+			<label class="forFormInside">Cấu hình server</label>
+			<form>
+				<fieldset data-role="controlgroup" data-theme="gmBlack" class="radioBlack" id="danhSachServer">
+	    		</fieldset>
+    		</form>
+    		
+        </div>
+
+
+	
+		<!-- dialog add config -->
+	    <div id="dialogAddconfig" data-role="popup" style="width: 300px;">
+		<h3>Thêm cấu hình</h3>
+		<div data-role="content">
+			<input id="serverurl" name="serverurl" placeholder="Đường dẫn server" data-inline="true" data-mini="true"/>
+			<input id="servername" name="servername" placeholder="Tên server"  data-inline="true" data-mini="true"/>
+			<input id="collectionid" name="collectionid" placeholder="Id collection public" data-inline="true" data-mini="true"/>
+			<input id="systemid" name="systemid" placeholder="data id" data-inline="true" data-mini="true"/>
+			<input id="dataid" name="dataid" placeholder="system id" data-inline="true" data-mini="true"/>	
+			<input id="fileid" name="fileid" placeholder="file id" data-inline="true" data-mini="true"/>			
+			<!-- <a data-role="button" id="btnAddConfig" onclick="fnAddConfig();">Thêm</a> -->
+			
+			<div data-role="navbar">
+				<ul>
+					<li><a data-role="button" data-theme="a" data-icon="plus" id="btnAddConfig">Thêm</a></li>
+					<li><a data-role="button" data-theme="a" data-icon="refresh" id="btnLoadConfig">Tải cấu hình</a></li>
+				</ul>
+			</div>
+		</div>            
+		</div>
+		<!-- end dialog add config -->
+		
+		
+		<!-- dialog Sửa config -->
+	    <div id="dialogEditconfig" data-role="popup" style="width: 300px;">
+	        <h3>Sửa cấu hình</h3>
+	   		<div data-role="content">
+	   		
+               	<label for="serverurlEdit">Url</label>
+		   		<input id="serverurlEdit" name="serverurlEdit" placeholder="Đường dẫn server" data-inline="true" data-mini="true"/>
+		   		
+               	<label for="servernameEdit">Tên </label>
+		   		<input id="servernameEdit" name="servernameEdit" placeholder="Tên server"  data-inline="true" data-mini="true"/>
+		   
+		   		<label for="collectionidedit">Id collection public</label>
+		   		<input id="collectionidedit" name="serverurlEdit" placeholder="Id collection public" data-inline="true" data-mini="true"/>
+				 
+				<label for="systemidedit">system id</label>
+		   		<input id="systemidedit" name="systemidedit" placeholder="system id" data-inline="true" data-mini="true"/>
+
+				<label for="dataidedit">data id</label>
+		   		<input id="dataidedit" name="dataidedit" placeholder="data id" data-inline="true" data-mini="true"/>
+
+				<label for="fileidedit">file id</label>
+		   		<input id="fileidedit" name="fileidedit" placeholder="file id" data-inline="true" data-mini="true"/>
+				<!-- <label for="drsidedit">drs id</label>
+		   		<input id="drsidedit" name="drsidedit" placeholder="drs id" data-inline="true" data-mini="true"/> -->
+
+				<div data-role="navbar">
+				    <ul>
+				      <li><a data-role="button" data-theme="a" data-icon="check" class="btnSaveServerItem">Sửa</a></li>
+				      <li><a data-role="button" data-theme="a" class="refreshServerEdit" data-icon="refresh" >Refresh</a></li>
+				    </ul>
+				</div>
+			   
+		   	</div>
+		</div>
+		<!-- end dialog add config -->
+		
+        <!-- footer -->
+        <div data-role="footer" data-position="fixed" data-tap-toggle="false">
+            <div data-role="navbar">
+                <ul>
+                    <li><a id="formButton" href="#mainPage"     data-icon="home">Đăng nhập</a></li>
+                     <!--<li>
+                    <a id="refreshFormButton" onclick="fnSetConfigDefault();"  data-icon="check" data-inline="true"    data-mini="true" data-mini="true">Cấu hình mẫu</a>
+                    </li> -->
+					<li>
+						<a href="#" data-rel="popup" onclick="fnShowDialog('dialogAddconfig')"   data-role="button" data-inline="true" data-icon="plus">Thêm cấu hình</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <!-- end footer -->
+
+    </div>
+    <!-- end settings page -->
+
+
+    <!-- map page -->
+   <div id="mapPage" data-role="page">
+  <div data-role="header" data-position="fixed">
+   <div data-role="navbar" data-theme="a" >
+      <ul>
+      	<li><a href="#explorerPage"  data-icon="back" data-role="button" data-inline="true">Trở lại</a></li>
+      	<li><a href="#sessionPage" onclick="fnLoadDataEdit();" data-icon="grid"  data-role="button" data-inline="true">Danh sách</a></li>
+        <li><a href="#" id="btnEddEdit"  onclick="fnActionAddEdit();" data-icon="check" data-role="button" data-inline="true">Hoàn tất</a></li>
+	  	<li><a href="#" onclick="fnActiveView('list')" data-icon="edit"  data-role="button" data-inline="true">Thuộc tính</a></li>
+	  	<li><a href="#" onclick="fnActiveView('map')" data-icon="star"  data-role="button" data-inline="true">Bản đồ</a></li>
+      </ul>
+    </div>
+  </div>
+  <div data-role="content" >
+  <div id="mapViewer" class="mapViewer">
+   <div id="map" style="width: 100%; height:100%; top:55px; left:0px; right:0px; bottom:0px; position: absolute;"></div>
+	 <div class="mapHeader" data-role="header" data-theme="gm"> 
+	    <a data-iconpos="notext" href="#mapPanelLeft" data-role="button" data-icon="menuIco" title="Menu" class="icon48 ui-icon-gm white" data-theme="gm">Home</a> <a data-iconpos="notext" href="#panelRightMapViewer" data-role="button" data-ic data-icon="listIco" title="Menu" class="icon48 ui-icon-gm featured resultButtonIco" data-theme="gm">List</a>
+	      <input class="mapSearch" type="search" name="search" id="search" value="" placeholder="Tìm kiếm" data-theme="gm">
+	 </div>
+    <a id="gpsPanelButton" data-role="button" data-icon="pointIco" data-theme="gm" data-iconpos="notext" data-inline="true" class="icon48 ui-icon-gm white">Vị trí của tôi</a>
+  </div>
+    
+  <div id="listObjectView" data-role="content"  class="listObjectViewer" data-theme="gm"  style="display: none;  top:0px; left:0px; right:0px; height:100%; bottom:0px; position: absolute; overflow:scroll;">
+		<div data-role="content" data-theme="gm">
+			  <label  class="forFormInside">Chọn lớp</label>
+			  <!-- <h3 class="titlePage">Chọn lớp</h3> -->
+			  <div id="div_SelectLopDoiTuong"></div>
+			 
+			  <label class="forFormInside">Thông tin chung</label>
+			  <!-- <h3 class="titlePage">Thông tin chung</h3> -->
+			  <div id="divThongTinchung"></div>
+			  <!-- <ul data-role="listview" data-inset="false" class="formInside" >
+			    <li data-icon="custom">
+			    	<div class="formValue">
+			    	 <label for="name2">Tên đối tượng</label>
+			         <input type="text" name="companyName" id="editCustomer_companyName" value="" data-clear-btn="true">
+			         </div>
+			    </li>
+			    <li data-icon="custom">
+			        <div class="formValue">
+			            <label for="name2">Attributes 2</label>
+			             <input type="text" name="contactName" id="editCustomer_contactName" value="" data-clear-btn="true">
+			         </div>    
+			     </li>
+			</ul> -->
+			<label  class="forFormInside">Thông tin media</label>
+			<!-- <h3 class="titlePage">Thông tin media</h3> -->
+			 <div data-role="content" data-theme="gm">
+				<div id="listImageScreen">
+					
+				</div>
+			</div>
+	
+			
+			
+			
+			
+		     
+		</div>
+		
+   </div> 
+            
+  </div>
+  <div data-role="popup" id="mapPopupInfo" data-theme="gm"> 
+	<div data-role="header" data-theme="a" class="ui-corner-top">
+	<a href="#" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
+			<h1>Thông tin chi tiết</h1>
+		</div>
+		<div data-role="content" data-theme="d" class="ui-corner-bottom ui-content">
+			<h3 class="ui-title"  id="tenDoiTuongSelect"></h3>
+			<center>
+				<a  onclick="fnChiTietDoiTuongPopup(); return false;"  data-role="button" data-inline="true" data-rel="back" data-theme="gm">Xem chi tiết</a>    
+			</center>
+		</div>
+					
+					
+  </div>
+  <div data-role="panel" id="mapPanelLeft" data-position="left" data-theme="gmBlack" data-display="push">
+   
+   	<div style="width: 100%; position: relative;" id="panelLeftContent">
+    <ul data-role="listview" data-inset="true">
+      <li data-role="list-divider" data-theme="gmBlack"><span data-iconpos="notext" data-icon="markerIco" data-theme="gmBlack" data-role="button" class="icon48 ui-icon-gm featured icon2Left"></span>
+        <h5 id="h3TenBanDo"></h5>
+      </li>
+    </ul>
+    <fieldset data-role="controlgroup" data-theme="gmBlack" class="radioBlack">
+      <legend>Bản đồ nền</legend>
+      <div id="divBaselayers">	    
+	  </div>
+    </fieldset>
+ 	</div>
+ 
+  </div>
+  <div data-role="panel" id="panelRightMapViewer" data-position="right" data-theme="gmBlack" data-display="overlay">
+	   <div style="top: 0px;widows: 100%;">
+	    <ul data-role="listview" data-inset="true">
+	      <li data-role="list-divider" data-theme="gmBlack"><span data-iconpos="notext" data-icon="groupIco" data-theme="gmBlack" data-role="button" class="icon48 ui-icon-gm featured icon2Left"></span>
+	        <h5>Danh sách kết quả</h5>
+	      </li>
+	    </ul>
+	   </div>
+		<div id="contentDSKetQuaGeoName" style="width: 100%;overflow: scroll; position: relative;">
+	   		<ul data-role="listview" data-theme="c"  id="mapDanhSachKetQua"></ul>
+	   </div>
+   </div>
+  <div data-role="footer" id="footerMapPage"  data-position="fixed" style="width: 100%; display: none;" data-theme="a" class="footerPanel" >
+	            <div data-role="navbar" data-theme="a">
+		          <ul>
+		            <li ><a class="button24" onClick="getImageFromLibary();">
+		              <div class="icon-24 gBizIcon gBizTakePhoto"></div>
+		              Thư viện<br>
+		              Ảnh</a></li>
+		            <li><a class="button24" onClick="capturePhoto();">
+		              <div class="icon-24 gBizIcon gBizImageShoot"></div>
+		              Chụp ảnh<br>
+		              &nbsp;</a></li>
+		          </ul>
+		        </div>		          
+		  	</div>
+	</div>
+	<!--/mapPage-->
+ 
+ 	<!-- sessionPage -->
+	<div id="sessionPage" data-role="page">
+		<div data-role="header"  data-theme="a" data-position="fix">
+		  	<a href="#mapPage"  data-icon="back" data-role="button" data-inline="true">Trở lại</a>
+		  	<h2></h2>
+		</div>
+		<div data-role="content" data-theme="gm">
+			   <label class="forFormInside">Các điểm trong phiên làm việc</label>
+		    	<div id="divContentSession">
+				<ul id="listviewSession" data-role="listview" data-split-icon="g-check"  data-split-theme="a" data-inset="true" data-corners="false"></ul>
+				<!-- <ul id="listviewSessionTest" data-role="listview" class="takePhotolistView" data-split-icon="g-check"  data-split-theme="a" data-inset="true" data-corners="false">
+					<li>
+						<a href="#"><h2>agklhdfl slkhs agkl á lag; ậ  lạ la fuawtk ahfaksh</h2></a>
+						<div class="split-custom-wrapper">
+				            <a href="#" data-role="button" class="split-custom-button" data-icon="delete" data-rel="dialog" data-theme="c" data-iconpos="notext">Xóa</a>
+				            <a href="#" data-role="button" class="split-custom-button" data-icon="gear" data-rel="dialog" data-theme="c" data-iconpos="notext">Sửa</a>
+				        </div>
+					</li>
+					<li>
+						<a href="#"><h2>test 2</h2></a>
+						<div class="split-custom-wrapper">
+				            <a href="#" data-role="button" class="split-custom-button" data-icon="delete" data-rel="dialog" data-theme="c" data-iconpos="notext">Xóa</a>  
+				            <a href="#" data-role="button" class="split-custom-button" data-icon="edit" data-rel="dialog" data-theme="c" data-iconpos="notext">Sửa</a>
+				        </div>
+					</li>
+				</ul> -->
+			</div>
+		</div>
+	</div>
+	<!-- /sessionPage -->
+	
+	<div data-role="page" id="addPage" data-theme="gm">
+	  
+	</div>
+
+</body>
+
+
+  
+</html>
